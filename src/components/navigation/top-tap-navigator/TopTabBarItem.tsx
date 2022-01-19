@@ -23,6 +23,7 @@ interface TopTabBarItemProps {
   index: number;
   offsetX: SharedValue<number>;
   onLayout?: (event: LayoutChangeEvent) => void;
+  onPress?: () => void;
 }
 
 export default function TopTabBarItem({
@@ -30,6 +31,7 @@ export default function TopTabBarItem({
   index,
   offsetX,
   onLayout,
+  onPress,
 }: TopTabBarItemProps) {
   const threadhold = useMemo(() => {
     const screenWidth = Dimensions.get('screen').width;
@@ -52,7 +54,7 @@ export default function TopTabBarItem({
   }, [threadhold]);
 
   return (
-    <TopTabBarItemWrapper key={item.name} onLayout={onLayout}>
+    <TopTabBarItemWrapper key={item.name} onLayout={onLayout} onPress={onPress}>
       {item.icon ? (
         <TopTabBarImageItem source={item.icon} />
       ) : (

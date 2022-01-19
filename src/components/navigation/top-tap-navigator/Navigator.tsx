@@ -1,5 +1,10 @@
 import Animated, { useSharedValue } from 'react-native-reanimated';
-import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import {
+  Dimensions,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+} from 'react-native';
 import React, {
   PropsWithChildren,
   ReactElement,
@@ -8,10 +13,10 @@ import React, {
   useRef,
 } from 'react';
 
+import { Color } from '../../../constants/Color';
 import { Item } from './TopTabBarItem';
 import { ScreenProps } from './Screen';
 import TopTabBar from './TopTabBar';
-import TopTabBodyItem from './TopTabBodyItem';
 import styled from 'styled-components/native';
 
 export interface NavigatorProps {
@@ -43,6 +48,15 @@ export default function Navigator(props: PropsWithChildren<NavigatorProps>) {
     });
   }, [screens]);
 
+  const handlePressItem = useCallback((index: number) => {
+    if (topTabBodyRef.current) {
+      const screenWidth = Dimensions.get('screen').width;
+      (topTabBodyRef.current as ScrollView).scrollTo({
+        x: index * screenWidth,
+      });
+    }
+  }, []);
+
   const handleScroll = useCallback(
     ({
       nativeEvent: { contentOffset },
@@ -56,7 +70,11 @@ export default function Navigator(props: PropsWithChildren<NavigatorProps>) {
   return (
     <TopTabContainer>
       <TopTabHeader>
-        <TopTabBar items={tabBarItems} offsetX={offsetX} />
+        <TopTabBar
+          items={tabBarItems}
+          offsetX={offsetX}
+          onPressItem={handlePressItem}
+        />
       </TopTabHeader>
       <TopTabBody
         ref={topTabBodyRef}
@@ -77,6 +95,7 @@ export default function Navigator(props: PropsWithChildren<NavigatorProps>) {
 
 const TopTabContainer = styled.SafeAreaView`
   flex: 1;
+  background-color: ${Color.White};
 `;
 
 const TopTabHeader = styled.View`
@@ -89,4 +108,9 @@ const TopTabHeader = styled.View`
 
 const TopTabBody = styled(Animated.ScrollView)`
   flex: 1;
+`;
+
+const TopTabBodyItem = styled.View`
+  flex: 1;
+  width: ${Dimensions.get('screen').width}px;
 `;

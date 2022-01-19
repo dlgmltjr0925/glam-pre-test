@@ -22,6 +22,7 @@ interface LayoutRef {
 interface TopTabBarProps {
   items: Item[];
   offsetX: SharedValue<number>;
+  onPressItem: (index: number) => void;
 }
 
 function getIntialLayoutRef(length: number): LayoutRef {
@@ -33,7 +34,11 @@ function getIntialLayoutRef(length: number): LayoutRef {
   return { layouts };
 }
 
-export default function TopTabBar({ items, offsetX }: TopTabBarProps) {
+export default function TopTabBar({
+  items,
+  offsetX,
+  onPressItem,
+}: TopTabBarProps) {
   const layoutRef = useRef<LayoutRef>(getIntialLayoutRef(items.length));
   const [layouts, setLayouts] = useState<LayoutRectangle[]>([]);
 
@@ -89,6 +94,15 @@ export default function TopTabBar({ items, offsetX }: TopTabBarProps) {
     };
   }, [ranges]);
 
+  const handlePress = useCallback(
+    index => {
+      return () => {
+        onPressItem(index);
+      };
+    },
+    [onPressItem],
+  );
+
   const handleLayout = useCallback((index: number) => {
     return ({ nativeEvent: { layout } }: LayoutChangeEvent) => {
       'worklet';
@@ -113,6 +127,7 @@ export default function TopTabBar({ items, offsetX }: TopTabBarProps) {
             index={index}
             offsetX={offsetX}
             onLayout={handleLayout(index)}
+            onPress={handlePress(index)}
           />
         );
       })}

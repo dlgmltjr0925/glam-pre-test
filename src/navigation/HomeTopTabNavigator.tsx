@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import { Text, View } from 'react-native';
 
+import MainScreen from '../screens/main/MainScreen';
 import { createTopTabNavigator } from '../components/navigation/top-tap-navigator';
 
 const Tab = createTopTabNavigator();
@@ -18,12 +19,12 @@ export default function HomeTopTabNavigator() {
     <Tab.Navigator>
       <Tab.Screen
         name="MainScreen"
-        component={MockScreen('MainScreen')}
+        component={MainScreen}
         options={{ icon: require('../assets/icon/main/logo.png') }}
       />
       <Tab.Screen
         name="NearScreen"
-        component={MockScreen('NearScreen')}
+        component={MockScreen('NearByScreen')}
         options={{ title: '근처' }}
       />
       <Tab.Screen
