@@ -1,5 +1,6 @@
 import { Image, ImageSourcePropType, Text, View } from 'react-native';
 
+import HomeTopTabNavigator from './HomeTopTabNavigator';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
@@ -28,8 +29,8 @@ export default function MainBottomTabNavigator() {
         headerShown: false,
       }}>
       <Tab.Screen
-        name="HomeScreen"
-        component={MockScreen}
+        name="HomeTopTabNavigator"
+        component={HomeTopTabNavigator}
         options={{
           tabBarIcon: TabBarIcon(require('../assets/icon/nav/home.png')),
         }}
