@@ -6,9 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
 
-function MockScreen(props: any) {
-  console.log(props);
-
+function MockScreen() {
   return (
     <View>
       <Text>MockScreen</Text>
