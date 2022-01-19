@@ -20,6 +20,9 @@ export default function MainStackNavigator() {
       <Stack.Screen
         name="MainBottomTabNavigator"
         component={MainBottomTabNavigator}
+        options={{
+          headerShown: false,
+        }}
       />
       <Stack.Screen name="SecondLevelNavigator" component={MockScreen} />
     </Stack.Navigator>
