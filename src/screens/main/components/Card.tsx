@@ -2,11 +2,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { Dimensions, GestureResponderEvent } from 'react-native';
+import { Dimensions, GestureResponderEvent, Platform } from 'react-native';
 import FastImage, { Priority } from 'react-native-fast-image';
 import React, { useCallback } from 'react';
 
 import { Color } from '../../../constants/Color';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import styled from 'styled-components/native';
 
 export interface Item {
@@ -33,8 +34,18 @@ export const ITEM_HEIGHT = CARD_HEIGHT + 12;
 
 export const BASE_URL = 'https://test.dev.cupist.de';
 
+const HAPTIC_TRIGGER_OPTIONS = {
+  enableVibrateFallback: false,
+  ignoreAndroidSystemSettings: true,
+};
+
+const HAPTIC_TRIGGER_TYPE = Platform.select({
+  ios: 'selection',
+  android: 'impactMedium',
+}) as ReactNativeHapticFeedback.HapticFeedbackTypes;
+
 export default function Card({ item, priority = 'normal' }: CardProps) {
-  const pictureIndex = useSharedValue<number>(1);
+  const pictureIndex = useSharedValue<number>(0);
   const { pictures } = item;
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -48,11 +59,19 @@ export default function Card({ item, priority = 'normal' }: CardProps) {
         // 프로필 상세보기
       } else if (locationX < CARD_WIDTH / 2) {
         // 이전 사진
+        ReactNativeHapticFeedback.trigger(
+          HAPTIC_TRIGGER_TYPE,
+          HAPTIC_TRIGGER_OPTIONS,
+        );
         if (pictureIndex.value > 0) {
           pictureIndex.value--;
         }
       } else {
         // 다음 사진
+        ReactNativeHapticFeedback.trigger(
+          HAPTIC_TRIGGER_TYPE,
+          HAPTIC_TRIGGER_OPTIONS,
+        );
         if (pictureIndex.value < pictures.length - 1) {
           pictureIndex.value++;
         }
@@ -87,7 +106,7 @@ const Container = styled(Animated.View)`
   height: ${CARD_HEIGHT}px;
   border-radius: 8px;
   overflow: hidden;
-  background-color: ${Color.Gray1};
+  background-color: ${Color.Gray0};
 `;
 
 const PictureWrapper = styled(Animated.View)`
