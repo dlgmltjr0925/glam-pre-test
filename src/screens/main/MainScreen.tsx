@@ -36,7 +36,7 @@ export default function MainScreen() {
       keyExtractor={item => item.id.toString()}
       data={MOCK_DATA}
       itemHeight={ITEM_HEIGHT}
-      renderItem={({ item }) => <Card item={item} />}
+      renderItem={({ item }) => <Card item={item} priority="high" />}
     />
   );
 }
