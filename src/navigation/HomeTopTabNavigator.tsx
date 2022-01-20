@@ -1,6 +1,8 @@
-import React, { ReactElement } from 'react';
-import { Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
+import React, { ReactElement, useCallback } from 'react';
+import { StackActions, useNavigation } from '@react-navigation/native';
 
+import EditProfileScreen from '../screens/edit-profile/EditProfileScreen';
 import MainScreen from '../screens/main/MainScreen';
 import { createTopTabNavigator } from '../components/navigation/top-tap-navigator';
 
@@ -14,9 +16,23 @@ function MockScreen(screenName: string) {
   );
 }
 
+function TabBarRight() {
+  const navigation = useNavigation();
+
+  const handlePress = useCallback(() => {
+    navigation.dispatch(StackActions.push(EditProfileScreen.name));
+  }, [navigation]);
+
+  return (
+    <Pressable onPress={handlePress}>
+      <Image source={require('../assets/icon/main/setting.png')} />
+    </Pressable>
+  );
+}
+
 export default function HomeTopTabNavigator() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{ TabBarRight }}>
       <Tab.Screen
         name="MainScreen"
         component={MainScreen}

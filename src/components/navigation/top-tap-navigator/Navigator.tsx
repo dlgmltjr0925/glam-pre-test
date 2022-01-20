@@ -19,14 +19,24 @@ import { ScreenProps } from './Screen';
 import TopTabBar from './TopTabBar';
 import styled from 'styled-components/native';
 
-export interface NavigatorProps {
-  children: ReactElement<ScreenProps> | ReactElement<ScreenProps>[];
+export interface Options {
+  TabBarRight?: React.FC;
 }
 
-export default function Navigator(props: PropsWithChildren<NavigatorProps>) {
+export interface NavigatorProps {
+  children: ReactElement<ScreenProps> | ReactElement<ScreenProps>[];
+  screenOptions?: Options;
+}
+
+export default function Navigator({
+  screenOptions = {},
+  ...props
+}: PropsWithChildren<NavigatorProps>) {
   if (!props.children) {
     throw new Error('More than one screen is required.');
   }
+
+  const { TabBarRight } = screenOptions;
 
   const topTabBodyRef = useRef(null);
 
@@ -75,6 +85,7 @@ export default function Navigator(props: PropsWithChildren<NavigatorProps>) {
           offsetX={offsetX}
           onPressItem={handlePressItem}
         />
+        {TabBarRight && <TabBarRight />}
       </TopTabHeader>
       <TopTabBody
         ref={topTabBodyRef}
