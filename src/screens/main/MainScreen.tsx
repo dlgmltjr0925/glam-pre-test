@@ -1,6 +1,7 @@
 import Card, { ITEM_HEIGHT, Item } from './components/Card';
+import React, { useCallback } from 'react';
 
-import React from 'react';
+import RecommendationCard from './components/RecommendationCard';
 import VerticalPagingList from '../../components/common/VerticalPagingList';
 
 const MOCK_DATA: Item[] = [
@@ -32,14 +33,17 @@ const MOCK_DATA: Item[] = [
 ];
 
 export default function MainScreen() {
+  const renderItem = useCallback(({ item }) => {
+    return <RecommendationCard />;
+    // return <Card item={item} priority="high" todayRecommendation />
+  }, []);
+
   return (
     <VerticalPagingList<Item>
       keyExtractor={item => item.id.toString()}
       data={MOCK_DATA}
       itemHeight={ITEM_HEIGHT}
-      renderItem={({ item }) => (
-        <Card item={item} priority="high" todayRecommendation />
-      )}
+      renderItem={renderItem}
     />
   );
 }
