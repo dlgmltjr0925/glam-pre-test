@@ -4,15 +4,17 @@ import React, { PropsWithChildren, useCallback } from 'react';
 import { Color } from '../../../constants/Color';
 import styled from 'styled-components/native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-interface StackNavigatorViewProps {
+interface StackViewProps {
   title: string;
 }
 
-export default function StackNavigatorView({
+export default function StackView({
   title,
   children,
-}: PropsWithChildren<StackNavigatorViewProps>) {
+}: PropsWithChildren<StackViewProps>) {
+  const { top } = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const handlePressBack = useCallback(() => {
@@ -20,7 +22,7 @@ export default function StackNavigatorView({
   }, [navigation]);
 
   return (
-    <Container>
+    <Container style={{ paddingTop: top }}>
       <Header>
         <HeaderLeft>
           <BackButton onPress={handlePressBack}>
@@ -37,7 +39,7 @@ export default function StackNavigatorView({
   );
 }
 
-const Container = styled.SafeAreaView`
+const Container = styled.View`
   flex: 1;
   background-color: ${Color.White};
 `;
