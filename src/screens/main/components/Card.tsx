@@ -1,7 +1,4 @@
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import {
   Dimensions,
   GestureResponderEvent,
@@ -12,6 +9,7 @@ import FastImage, { Priority } from 'react-native-fast-image';
 import React, { useCallback, useMemo, useState } from 'react';
 
 import { Color } from '../../../constants/Color';
+import LinearGradient from 'react-native-linear-gradient';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import styled from 'styled-components/native';
 
@@ -122,19 +120,20 @@ export default function Card({
         ))}
       </PictureWrapper>
       <InfoWrapper>
+        <InfoLinearGradient
+          colors={['rgba(51, 51, 51, 0)', 'rgba(51, 51, 51, 1)']}
+        />
         {todayRecommendation && (
           <HorizontalView>
-            <TodayRecommendationText adjustsFontSizeToFit>
-              오늘의 추천
-            </TodayRecommendationText>
+            <TodayRecommendationText>오늘의 추천</TodayRecommendationText>
           </HorizontalView>
         )}
-        <HorizontalView>
+        <HorizontalView marginTop={12}>
           <MainInfoText>{info.main}</MainInfoText>
-          <InfoImage source={require('../../../assets/icon/main/info.png')} />
+          <InfoIcon source={require('../../../assets/icon/main/info.png')} />
         </HorizontalView>
         <DetailInfoWrapper>
-          {!info.introduction ? (
+          {pictureIndex === 0 && info.introduction ? (
             <IntroductionText numberOfLines={2} ellipsizeMode="tail">
               {info.introduction}
             </IntroductionText>
@@ -146,7 +145,7 @@ export default function Card({
           )}
         </DetailInfoWrapper>
       </InfoWrapper>
-      <PagingPressable onPress={handlePressPicture} />
+      <PicturePressable onPress={handlePressPicture} />
       <ButtonWrapper>
         <DeleteButton>
           <Image source={require('../../../assets/icon/main/delete.png')} />
@@ -167,6 +166,7 @@ const Container = styled(Animated.View)`
   border-radius: 8px;
   overflow: hidden;
   background-color: ${Color.Gray0};
+  justify-content: flex-end;
 `;
 
 const PictureWrapper = styled(Animated.View)`
@@ -178,14 +178,13 @@ const PictureWrapper = styled(Animated.View)`
 `;
 
 const InfoWrapper = styled.View`
-  flex: 1;
-  justify-content: flex-end;
   padding: 0 16px;
 `;
 
-const HorizontalView = styled.View`
+const HorizontalView = styled.View<{ marginTop?: number }>`
   flex-direction: row;
   align-items: center;
+  margin-top: ${({ marginTop = 0 }) => marginTop}px;
 `;
 
 const TodayRecommendationText = styled.Text`
@@ -201,16 +200,14 @@ const MainInfoText = styled.Text`
   font-size: 24px;
   font-weight: 600;
   color: ${Color.White};
-  margin-top: 12px;
 `;
 
-const InfoImage = styled.Image`
+const InfoIcon = styled.Image`
   margin-left: 4px;
-  margin-bottom: 6px;
 `;
 
 const DetailInfoWrapper = styled.View`
-  margin-top: 12px;
+  margin-top: 8px;
 `;
 
 const IntroductionText = styled.Text`
@@ -229,7 +226,7 @@ const HeightText = styled.Text`
   margin-top: 4px;
 `;
 
-const PagingPressable = styled.Pressable`
+const PicturePressable = styled.Pressable`
   position: absolute;
   top: 0;
   left: 0;
@@ -240,7 +237,8 @@ const PagingPressable = styled.Pressable`
 
 const ButtonWrapper = styled.View`
   flex-direction: row;
-  padding: 20px 16px;
+  padding: 20px 16px 16px;
+  background-color: #333333;
 `;
 
 const DeleteButton = styled.Pressable`
@@ -266,4 +264,12 @@ const LikeButtonText = styled.Text`
   font-size: 14px;
   font-weight: 600;
   color: ${Color.White};
+`;
+
+const InfoLinearGradient = styled(LinearGradient)`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 `;
