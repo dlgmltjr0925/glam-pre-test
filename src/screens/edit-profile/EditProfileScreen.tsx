@@ -1,15 +1,11 @@
 import React from 'react';
+import StackView from '../../components/navigation/stack-navigator/StackView';
 import { Text } from 'react-native';
-import styled from 'styled-components/native';
 
 export default function EditProfileScreen() {
   return (
-    <Container>
+    <StackView title="프로필 수정">
       <Text>EditProfileScreen</Text>
-    </Container>
+    </StackView>
   );
 }
-
-const Container = styled.SafeAreaView`
-  flex: 1;
-`;
