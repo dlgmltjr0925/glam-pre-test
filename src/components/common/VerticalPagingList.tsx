@@ -8,13 +8,15 @@ import {
   LayoutRectangle,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  ScrollView,
+  ScrollViewProps,
 } from 'react-native';
 import { ReactElement, useCallback, useState } from 'react';
 
 import React from 'react';
 import styled from 'styled-components/native';
 
-export interface VerticalPagingListProps<ItemT = any> {
+export interface VerticalPagingListProps<ItemT = any> extends ScrollViewProps {
   data: ItemT[];
   itemHeight: number;
   keyExtractor: (item: ItemT, index: number) => string;
@@ -35,6 +37,7 @@ export default function VerticalPagingList<T>({
   keyExtractor,
   renderItem,
   scrollEventThrottle = 16,
+  ...props
 }: VerticalPagingListProps<T>) {
   const contentOffsetY = useSharedValue<number>(0);
 
@@ -71,7 +74,8 @@ export default function VerticalPagingList<T>({
   return (
     <Container onLayout={handleLayout}>
       {layout.height > 0 && (
-        <ContentScrollView
+        <ScrollView
+          {...props}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onScroll={handleScroll}
@@ -85,17 +89,13 @@ export default function VerticalPagingList<T>({
               </ContentView>
             ))}
           </ContentWrapper>
-        </ContentScrollView>
+        </ScrollView>
       )}
     </Container>
   );
 }
 
 const Container = styled.View`
-  flex: 1;
-`;
-
-const ContentScrollView = styled.ScrollView`
   flex: 1;
 `;
 

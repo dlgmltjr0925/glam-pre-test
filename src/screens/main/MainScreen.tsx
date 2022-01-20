@@ -1,33 +1,42 @@
-import { Dimensions, Text } from 'react-native';
+import Card, { ITEM_HEIGHT, Item } from './components/Card';
 
 import React from 'react';
 import VerticalPagingList from '../../components/common/VerticalPagingList';
-import styled from 'styled-components/native';
 
-const width = Dimensions.get('screen').width - 6;
-const height = width * 1.4;
-const contentHeight = height + 12;
+const MOCK_DATA: Item[] = [
+  {
+    age: 30,
+    company: '큐피스트',
+    distance: 1600,
+    height: 160,
+    id: 1,
+    introduction: '소개글이 있으면 소개글을 노출 시킵니다',
+    job: '디자이너',
+    location: '서울특별시 강남구',
+    name: '디자이너 A',
+    pictures: ['/profile/03.png', '/profile/04.png', '/profile/05.png'],
+  },
+  {
+    age: 27,
+    company: '큐피스트',
+    distance: 2700,
+    height: 163,
+    id: 2,
+    introduction: null,
+    job: '개발자',
+    location: '서울특별시 강남구',
+    name: '개발자 B',
+    pictures: ['/profile/05.png', '/profile/06.png'],
+  },
+];
 
 export default function MainScreen() {
   return (
-    <VerticalPagingList<string>
-      keyExtractor={item => item}
-      data={Array.from({ length: 10 }, (_, i) => `Card${i + 1}`)}
-      itemHeight={contentHeight}
-      renderItem={({ item }) => (
-        <Card>
-          <Text>{item}</Text>
-        </Card>
-      )}
+    <VerticalPagingList<Item>
+      keyExtractor={item => item.id.toString()}
+      data={MOCK_DATA}
+      itemHeight={ITEM_HEIGHT}
+      renderItem={({ item }) => <Card item={item} />}
     />
   );
 }
-
-const Card = styled.View`
-  align-self: center;
-  margin: 12px 0 0;
-  width: ${width}px;
-  height: ${height}px;
-  border-radius: 8px;
-  border-width: 1px;
-`;
