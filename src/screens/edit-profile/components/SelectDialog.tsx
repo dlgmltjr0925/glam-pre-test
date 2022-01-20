@@ -25,7 +25,7 @@ interface Item {
 interface DialogOptions {
   title: string;
   items: Item[];
-  selectedItem?: Item;
+  selectedItemKey?: string;
   onPress: (item: Item) => void;
 }
 
@@ -88,7 +88,7 @@ function SelectDialog(
             {options?.items.map(item => (
               <DialogItem key={item.key} onPress={handlePressItem(item)}>
                 <DialogItemName
-                  isSelected={item.key === options?.selectedItem?.key}>
+                  isSelected={item.key === options?.selectedItemKey}>
                   {item.name}
                 </DialogItemName>
               </DialogItem>

@@ -1,6 +1,5 @@
-import { Image, Pressable, TextInput } from 'react-native';
-
 import { Color } from '../../../constants/Color';
+import { Pressable } from 'react-native';
 import React from 'react';
 import styled from 'styled-components/native';
 
@@ -10,6 +9,7 @@ interface ProfileItemProps {
   value: string | null;
   isLock?: boolean;
   editType?: 'input' | 'select';
+  onPress?: () => void;
 }
 
 export default function ProfileItem({
@@ -18,9 +18,10 @@ export default function ProfileItem({
   value,
   isLock = false,
   editType = 'input',
+  onPress,
 }: ProfileItemProps) {
   return (
-    <Wrapper>
+    <Wrapper onPress={onPress}>
       <LabelWrapper>
         <Label>{label}</Label>
       </LabelWrapper>

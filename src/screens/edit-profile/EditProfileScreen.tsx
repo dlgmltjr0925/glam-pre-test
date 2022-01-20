@@ -1,15 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import SelectDialog, { SelectDialogRef } from './components/SelectDialog';
 
 import { Color } from '../../constants/Color';
 import Pictures from './components/Pictures';
 import ProfileIntroduction from './components/ProfileIntroduction';
 import ProfileItem from './components/ProfileItem';
-import SelectDialog from './components/SelectDialog';
 import StackView from '../../components/navigation/stack-navigator/StackView';
 import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
 
 export default function EditProfileScreen() {
+  const selectDialogRef = useRef<SelectDialogRef>(null);
+
   const [profile, setProfile] = useState({
     birthday: '1990-01-01',
     body_type: 'body_type_00',
@@ -24,6 +26,37 @@ export default function EditProfileScreen() {
     name: '개발자 A',
     pictures: ['/profile/01.png', '/profile/02.png'],
     school: null,
+  });
+
+  const [meta, setMeta] = useState({
+    body_types: [
+      { key: 'body_type_00', name: '마른' },
+      { key: 'body_type_01', name: '보통' },
+      { key: 'body_type_02', name: '근육' },
+      { key: 'body_type_03', name: '통통' },
+    ],
+    educations: [
+      { key: 'education_00', name: '고등학교' },
+      { key: 'education_01', name: '전문대' },
+      { key: 'education_02', name: '대학교' },
+      { key: 'education_03', name: '석사' },
+      { key: 'education_04', name: '박사' },
+      { key: 'education_05', name: '기타' },
+    ],
+    genders: [
+      {
+        key: 'M',
+        name: '남성',
+      },
+      {
+        key: 'F',
+        name: '여성',
+      },
+    ],
+    height_range: {
+      max: 220,
+      min: 120,
+    },
   });
 
   const gender = useMemo(() => {
@@ -75,7 +108,32 @@ export default function EditProfileScreen() {
           <Separator />
           <ProfileIntroduction value={profile.introduction} />
           <Separator />
-          <ProfileItem label="키" value={height} editType="select" />
+          <ProfileItem
+            label="키"
+            value={height}
+            editType="select"
+            onPress={() => {
+              selectDialogRef.current?.open({
+                title: '키',
+                items: Array.from(
+                  { length: meta.height_range.max - meta.height_range.min + 1 },
+                  (_, i) => ({
+                    key: `${i + meta.height_range.min}`,
+                    name: `${i + meta.height_range.min}cm`,
+                  }),
+                ),
+                onPress: item => {
+                  setProfile({
+                    ...profile,
+                    height: parseInt(item.key, 10),
+                  });
+                },
+                selectedItemKey: profile.height
+                  ? `${profile.height}`
+                  : undefined,
+              });
+            }}
+          />
           <ProfileItem label="체형" value={bodyType} editType="select" />
           <Separator />
           <ProfileItem label="직장" value={profile.company} />
@@ -88,7 +146,7 @@ export default function EditProfileScreen() {
           <ProfileItem label="학교" value={profile.school} />
         </Container>
       </StackView>
-      <SelectDialog />
+      <SelectDialog ref={selectDialogRef} />
     </>
   );
 }
