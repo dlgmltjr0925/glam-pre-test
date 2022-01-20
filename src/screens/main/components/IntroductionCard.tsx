@@ -26,10 +26,10 @@ export interface Item {
   pictures: string[];
 }
 
-export interface CardProps {
+export interface IntroductionCardProps {
   item: Item;
   priority?: Priority;
-  todayRecommendation?: boolean;
+  isTodayRecommendation?: boolean;
 }
 
 export const CARD_WIDTH = Dimensions.get('screen').width - 12;
@@ -48,11 +48,11 @@ const HAPTIC_TRIGGER_TYPE = Platform.select({
   android: 'impactLight',
 }) as ReactNativeHapticFeedback.HapticFeedbackTypes;
 
-export default function Card({
+export default function IntroductionCard({
   item,
   priority = 'normal',
-  todayRecommendation = false,
-}: CardProps) {
+  isTodayRecommendation = false,
+}: IntroductionCardProps) {
   const [pictureIndex, setPictureIndex] = useState<number>(0);
   const { pictures } = item;
 
@@ -123,7 +123,7 @@ export default function Card({
         <InfoLinearGradient
           colors={['rgba(51, 51, 51, 0)', 'rgba(51, 51, 51, 1)']}
         />
-        {todayRecommendation && (
+        {isTodayRecommendation && (
           <HorizontalView>
             <TodayRecommendationText>오늘의 추천</TodayRecommendationText>
           </HorizontalView>
@@ -270,6 +270,6 @@ const InfoLinearGradient = styled(LinearGradient)`
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: -1px;
   left: 0;
 `;

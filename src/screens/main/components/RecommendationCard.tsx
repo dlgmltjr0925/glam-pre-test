@@ -1,7 +1,7 @@
-import { CARD_HEIGHT, CARD_WIDTH } from './Card';
 import React, { useCallback } from 'react';
 import RecommendationItem, { Item } from './RecommendationItem';
 
+import { CARD_WIDTH } from './IntroductionCard';
 import { Color } from '../../../constants/Color';
 import styled from 'styled-components/native';
 

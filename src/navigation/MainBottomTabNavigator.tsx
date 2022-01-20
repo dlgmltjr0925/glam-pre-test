@@ -2,15 +2,16 @@ import { Image, ImageSourcePropType, Text, View } from 'react-native';
 
 import HomeTopTabNavigator from './HomeTopTabNavigator';
 import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 const Tab = createBottomTabNavigator();
 
-function MockScreen() {
-  return (
-    <View>
-      <Text>MockScreen</Text>
-    </View>
+function MockScreen(screenName: string) {
+  return () => (
+    <SafeAreaView>
+      <Text>{screenName}</Text>
+    </SafeAreaView>
   );
 }
 
@@ -35,28 +36,28 @@ export default function MainBottomTabNavigator() {
       />
       <Tab.Screen
         name="LiveScreen"
-        component={MockScreen}
+        component={MockScreen('LiveScreen')}
         options={{
           tabBarIcon: TabBarIcon(require('../assets/icon/nav/live.png')),
         }}
       />
       <Tab.Screen
         name="StationScreen"
-        component={MockScreen}
+        component={MockScreen('StationScreen')}
         options={{
           tabBarIcon: TabBarIcon(require('../assets/icon/nav/station.png')),
         }}
       />
       <Tab.Screen
         name="ConnectionScreen"
-        component={MockScreen}
+        component={MockScreen('ConnectionScreen')}
         options={{
           tabBarIcon: TabBarIcon(require('../assets/icon/nav/connection.png')),
         }}
       />
       <Tab.Screen
         name="MoreScreen"
-        component={MockScreen}
+        component={MockScreen('MoreScreen')}
         options={{
           tabBarIcon: TabBarIcon(require('../assets/icon/nav/more.png')),
         }}
