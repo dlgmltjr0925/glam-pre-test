@@ -2,9 +2,14 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-import { Dimensions, GestureResponderEvent, Platform } from 'react-native';
+import {
+  Dimensions,
+  GestureResponderEvent,
+  Image,
+  Platform,
+} from 'react-native';
 import FastImage, { Priority } from 'react-native-fast-image';
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import { Color } from '../../../constants/Color';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -26,6 +31,7 @@ export interface Item {
 export interface CardProps {
   item: Item;
   priority?: Priority;
+  todayRecommendation?: boolean;
 }
 
 export const CARD_WIDTH = Dimensions.get('screen').width - 12;
@@ -41,30 +47,51 @@ const HAPTIC_TRIGGER_OPTIONS = {
 
 const HAPTIC_TRIGGER_TYPE = Platform.select({
   ios: 'selection',
-  android: 'impactMedium',
+  android: 'impactLight',
 }) as ReactNativeHapticFeedback.HapticFeedbackTypes;
 
-export default function Card({ item, priority = 'normal' }: CardProps) {
-  const pictureIndex = useSharedValue<number>(0);
+export default function Card({
+  item,
+  priority = 'normal',
+  todayRecommendation = false,
+}: CardProps) {
+  const [pictureIndex, setPictureIndex] = useState<number>(0);
   const { pictures } = item;
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: CARD_WIDTH * pictures.length,
-    transform: [{ translateX: pictureIndex.value * CARD_WIDTH * -1 }],
+    transform: [{ translateX: pictureIndex * CARD_WIDTH * -1 }],
   }));
 
-  const handlePress = useCallback(
+  const info = useMemo(() => {
+    const { name, age, introduction, job, height } = item;
+
+    const distance =
+      item.distance < 1000
+        ? item.distance + 'm'
+        : `${item.distance / 1000}`.slice(0, 3) + 'km';
+
+    return {
+      main: `${name}, ${age}`,
+      introduction,
+      sub: `${job} · ${distance}`,
+      height: `${height}cm`,
+    };
+  }, [item]);
+
+  const handlePressPicture = useCallback(
     ({ nativeEvent: { locationX, locationY } }: GestureResponderEvent) => {
       if (locationY > (CARD_HEIGHT * 2) / 3) {
         // 프로필 상세보기
+        console.log('Profile Detail');
       } else if (locationX < CARD_WIDTH / 2) {
         // 이전 사진
         ReactNativeHapticFeedback.trigger(
           HAPTIC_TRIGGER_TYPE,
           HAPTIC_TRIGGER_OPTIONS,
         );
-        if (pictureIndex.value > 0) {
-          pictureIndex.value--;
+        if (pictureIndex > 0) {
+          setPictureIndex(pictureIndex - 1);
         }
       } else {
         // 다음 사진
@@ -72,8 +99,8 @@ export default function Card({ item, priority = 'normal' }: CardProps) {
           HAPTIC_TRIGGER_TYPE,
           HAPTIC_TRIGGER_OPTIONS,
         );
-        if (pictureIndex.value < pictures.length - 1) {
-          pictureIndex.value++;
+        if (pictureIndex < pictures.length - 1) {
+          setPictureIndex(pictureIndex + 1);
         }
       }
     },
@@ -94,7 +121,40 @@ export default function Card({ item, priority = 'normal' }: CardProps) {
           />
         ))}
       </PictureWrapper>
-      <PagingPressable onPress={handlePress} />
+      <InfoWrapper>
+        {todayRecommendation && (
+          <HorizontalView>
+            <TodayRecommendationText adjustsFontSizeToFit>
+              오늘의 추천
+            </TodayRecommendationText>
+          </HorizontalView>
+        )}
+        <HorizontalView>
+          <MainInfoText>{info.main}</MainInfoText>
+          <InfoImage source={require('../../../assets/icon/main/info.png')} />
+        </HorizontalView>
+        <DetailInfoWrapper>
+          {!info.introduction ? (
+            <IntroductionText numberOfLines={2} ellipsizeMode="tail">
+              {info.introduction}
+            </IntroductionText>
+          ) : (
+            <>
+              <SubInfoText>{info.sub}</SubInfoText>
+              <HeightText>{info.height}</HeightText>
+            </>
+          )}
+        </DetailInfoWrapper>
+      </InfoWrapper>
+      <PagingPressable onPress={handlePressPicture} />
+      <ButtonWrapper>
+        <DeleteButton>
+          <Image source={require('../../../assets/icon/main/delete.png')} />
+        </DeleteButton>
+        <LikeButton>
+          <LikeButtonText>좋아요</LikeButtonText>
+        </LikeButton>
+      </ButtonWrapper>
     </Container>
   );
 }
@@ -117,10 +177,93 @@ const PictureWrapper = styled(Animated.View)`
   flex-direction: row;
 `;
 
+const InfoWrapper = styled.View`
+  flex: 1;
+  justify-content: flex-end;
+  padding: 0 16px;
+`;
+
+const HorizontalView = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
+const TodayRecommendationText = styled.Text`
+  font-size: 14px;
+  color: ${Color.White};
+  padding: 5px 12px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+`;
+
+const MainInfoText = styled.Text`
+  font-size: 24px;
+  font-weight: 600;
+  color: ${Color.White};
+  margin-top: 12px;
+`;
+
+const InfoImage = styled.Image`
+  margin-left: 4px;
+  margin-bottom: 6px;
+`;
+
+const DetailInfoWrapper = styled.View`
+  margin-top: 12px;
+`;
+
+const IntroductionText = styled.Text`
+  font-size: 16px;
+  color: ${Color.White};
+`;
+
+const SubInfoText = styled.Text`
+  font-size: 16px;
+  color: ${Color.White};
+`;
+
+const HeightText = styled.Text`
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 4px;
+`;
+
 const PagingPressable = styled.Pressable`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  justify-content: flex-end;
+`;
+
+const ButtonWrapper = styled.View`
+  flex-direction: row;
+  padding: 20px 16px;
+`;
+
+const DeleteButton = styled.Pressable`
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 44px;
+  margin-right: 8px;
+  background-color: ${Color.DarkGray1};
+  border-radius: 4px;s
+`;
+
+const LikeButton = styled.Pressable`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  height: 44px;
+  background-color: ${Color.GlamBlue};
+  border-radius: 4px;s
+`;
+
+const LikeButtonText = styled.Text`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${Color.White};
 `;

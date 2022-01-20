@@ -10,7 +10,8 @@ const MOCK_DATA: Item[] = [
     distance: 1600,
     height: 160,
     id: 1,
-    introduction: '소개글이 있으면 소개글을 노출 시킵니다',
+    introduction:
+      '소개글이 있으면 소개글을 노출 시킵니다.\n가나다라마바사아자차카타파가나다라마바사아자차카타파하\nHello World',
     job: '디자이너',
     location: '서울특별시 강남구',
     name: '디자이너 A',
@@ -36,7 +37,9 @@ export default function MainScreen() {
       keyExtractor={item => item.id.toString()}
       data={MOCK_DATA}
       itemHeight={ITEM_HEIGHT}
-      renderItem={({ item }) => <Card item={item} priority="high" />}
+      renderItem={({ item }) => (
+        <Card item={item} priority="high" todayRecommendation />
+      )}
     />
   );
 }
