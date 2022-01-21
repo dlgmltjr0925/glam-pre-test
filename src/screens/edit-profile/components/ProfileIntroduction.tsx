@@ -4,10 +4,12 @@ import styled from 'styled-components/native';
 
 export interface ProfileIntroductionProps {
   value: string | null;
+  onChangeText?: (text: string) => void;
 }
 
 export default function ProfileIntroduction({
   value,
+  onChangeText,
 }: ProfileIntroductionProps) {
   return (
     <Wrapper>
@@ -16,6 +18,7 @@ export default function ProfileIntroduction({
         multiline
         value={value || ''}
         placeholder="회원님의 매력을 간단하게 소개해주세요"
+        onChangeText={onChangeText}
       />
       <Guide>SNS 아이디 등 연락처 입력 시 서비스 이용 제한됩니다</Guide>
     </Wrapper>

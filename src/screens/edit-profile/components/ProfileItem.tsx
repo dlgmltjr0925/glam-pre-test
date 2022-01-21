@@ -1,5 +1,4 @@
 import { Color } from '../../../constants/Color';
-import { Pressable } from 'react-native';
 import React from 'react';
 import styled from 'styled-components/native';
 
@@ -10,6 +9,7 @@ interface ProfileItemProps {
   isLock?: boolean;
   editType?: 'input' | 'select';
   onPress?: () => void;
+  onChangeText?: (text: string) => void;
 }
 
 export default function ProfileItem({
@@ -19,6 +19,7 @@ export default function ProfileItem({
   isLock = false,
   editType = 'input',
   onPress,
+  onChangeText,
 }: ProfileItemProps) {
   return (
     <Wrapper onPress={onPress}>
@@ -33,15 +34,12 @@ export default function ProfileItem({
             value={value || ''}
             placeholder="입력해주세요"
             placeholderTextColor={Color.Gray2}
+            onChangeText={onChangeText}
           />
+        ) : value ? (
+          <ValueText>{value}</ValueText>
         ) : (
-          <Pressable>
-            {value ? (
-              <ValueText>{value}</ValueText>
-            ) : (
-              <Placeholder>선택해주세요</Placeholder>
-            )}
-          </Pressable>
+          <Placeholder>선택해주세요</Placeholder>
         )}
         {isLock && (
           <LockIcon

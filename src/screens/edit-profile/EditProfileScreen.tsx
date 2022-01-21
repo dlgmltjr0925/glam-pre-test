@@ -1,84 +1,38 @@
-import React, { useMemo, useRef, useState } from 'react';
-import SelectDialog, { SelectDialogRef } from './components/SelectDialog';
+import React, { useMemo } from 'react';
 
 import { Color } from '../../constants/Color';
+import KeyboardAwareScrollView from '../../components/common/KeyboardAwareScrollView';
 import Pictures from './components/Pictures';
 import ProfileIntroduction from './components/ProfileIntroduction';
 import ProfileItem from './components/ProfileItem';
+import SelectDialog from './components/SelectDialog';
 import StackView from '../../components/navigation/stack-navigator/StackView';
 import { StyleSheet } from 'react-native';
 import styled from 'styled-components/native';
+import useEditProfile from './hooks/useEditProfile';
 
 export default function EditProfileScreen() {
-  const selectDialogRef = useRef<SelectDialogRef>(null);
-
-  const [profile, setProfile] = useState({
-    birthday: '1990-01-01',
-    body_type: 'body_type_00',
-    company: '큐피스트',
-    education: null,
-    gender: 'F',
-    height: 170,
-    id: 0,
-    introduction: '소개글이 지워지면 힌트가 나타나야 합니다',
-    job: '개발자',
-    location: '서울특별시 강남구',
-    name: '개발자 A',
-    pictures: ['/profile/01.png', '/profile/02.png'],
-    school: null,
-  });
-
-  const [meta, setMeta] = useState({
-    body_types: [
-      { key: 'body_type_00', name: '마른' },
-      { key: 'body_type_01', name: '보통' },
-      { key: 'body_type_02', name: '근육' },
-      { key: 'body_type_03', name: '통통' },
-    ],
-    educations: [
-      { key: 'education_00', name: '고등학교' },
-      { key: 'education_01', name: '전문대' },
-      { key: 'education_02', name: '대학교' },
-      { key: 'education_03', name: '석사' },
-      { key: 'education_04', name: '박사' },
-      { key: 'education_05', name: '기타' },
-    ],
-    genders: [
-      {
-        key: 'M',
-        name: '남성',
-      },
-      {
-        key: 'F',
-        name: '여성',
-      },
-    ],
-    height_range: {
-      max: 220,
-      min: 120,
-    },
-  });
+  const { selectDialogRef, meta, profile, ...handlers } = useEditProfile();
 
   const gender = useMemo(() => {
-    return profile.gender === 'F' ? '여성' : '남성';
-  }, [profile.gender]);
+    return meta.genders.find(({ key }) => key === profile.gender)?.name || null;
+  }, [meta.genders, profile.gender]);
 
   const height = useMemo(() => {
     return `${profile.height}cm`;
   }, [profile.height]);
 
   const bodyType = useMemo(() => {
-    switch (profile.body_type) {
-      case 'body_type_00':
-        return '마른';
-      case 'body_type_01':
-        return '보통';
-      case 'body_type_02':
-        return '근육';
-      default:
-        return '통통';
-    }
-  }, [profile.body_type]);
+    return (
+      meta.bodyTypes.find(({ key }) => key === profile.bodyType)?.name || null
+    );
+  }, [meta.bodyTypes, profile.bodyType]);
+
+  const education = useMemo(() => {
+    return (
+      meta.educations.find(({ key }) => key === profile.education)?.name || null
+    );
+  }, [meta.educations, profile.education]);
 
   return (
     <>
@@ -106,44 +60,45 @@ export default function EditProfileScreen() {
           <ProfileItem label="생일" value={profile.birthday} editable={false} />
           <ProfileItem label="위치" value={profile.location} editable={false} />
           <Separator />
-          <ProfileIntroduction value={profile.introduction} />
+          <ProfileIntroduction
+            value={profile.introduction}
+            onChangeText={handlers.handleChangeText('introduction')}
+          />
           <Separator />
           <ProfileItem
             label="키"
             value={height}
             editType="select"
-            onPress={() => {
-              selectDialogRef.current?.open({
-                title: '키',
-                items: Array.from(
-                  { length: meta.height_range.max - meta.height_range.min + 1 },
-                  (_, i) => ({
-                    key: `${i + meta.height_range.min}`,
-                    name: `${i + meta.height_range.min}cm`,
-                  }),
-                ),
-                onPress: item => {
-                  setProfile({
-                    ...profile,
-                    height: parseInt(item.key, 10),
-                  });
-                },
-                selectedItemKey: profile.height
-                  ? `${profile.height}`
-                  : undefined,
-              });
-            }}
+            onPress={handlers.handlePressHeight}
           />
-          <ProfileItem label="체형" value={bodyType} editType="select" />
+          <ProfileItem
+            label="체형"
+            value={bodyType}
+            editType="select"
+            onPress={handlers.handlePressBodyType}
+          />
           <Separator />
-          <ProfileItem label="직장" value={profile.company} />
-          <ProfileItem label="직업" value={profile.job} />
+          <ProfileItem
+            label="직장"
+            value={profile.company}
+            onChangeText={handlers.handleChangeText('company')}
+          />
+          <ProfileItem
+            label="직업"
+            value={profile.job}
+            onChangeText={handlers.handleChangeText('job')}
+          />
           <ProfileItem
             label="학력"
-            value={profile.education}
+            value={education}
             editType="select"
+            onPress={handlers.handlePressEducation}
           />
-          <ProfileItem label="학교" value={profile.school} />
+          <ProfileItem
+            label="학교"
+            value={profile.school}
+            onChangeText={handlers.handleChangeText('school')}
+          />
         </Container>
       </StackView>
       <SelectDialog ref={selectDialogRef} />
@@ -151,7 +106,7 @@ export default function EditProfileScreen() {
   );
 }
 
-const Container = styled.ScrollView`
+const Container = styled(KeyboardAwareScrollView)`
   flex: 1;
 `;
 

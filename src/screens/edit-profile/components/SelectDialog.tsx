@@ -25,7 +25,7 @@ interface Item {
 interface DialogOptions {
   title: string;
   items: Item[];
-  selectedItemKey?: string;
+  selectedItemKey: string | null;
   onPress: (item: Item) => void;
 }
 
