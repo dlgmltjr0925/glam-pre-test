@@ -1,5 +1,6 @@
 import {
   Dimensions,
+  FlatList,
   Modal,
   Platform,
   StatusBar,
@@ -9,6 +10,7 @@ import React, {
   ForwardedRef,
   MutableRefObject,
   forwardRef,
+  useMemo,
   useState,
 } from 'react';
 
@@ -42,6 +44,14 @@ function SelectDialog(
   const [options, setOptions] = useState<DialogOptions | null>(null);
   const [visible, setVisible] = useState<boolean>(false);
 
+  const selectedIndex = useMemo(() => {
+    if (!options || !options.selectedItemKey) return undefined;
+    const index = options.items.findIndex(
+      item => item.key === options.selectedItemKey,
+    );
+    return index !== -1 ? index : undefined;
+  }, [options]);
+
   // eslint-disable-next-line @typescript-eslint/no-shadow
   const open = useCallback((options: DialogOptions) => {
     setOptions(options);
@@ -56,6 +66,19 @@ function SelectDialog(
       };
     },
     [options],
+  );
+
+  const renderItem = useCallback(
+    ({ item, index }) => {
+      return (
+        <DialogItem key={item.key} onPress={handlePressItem(item)}>
+          <DialogItemName isSelected={index === selectedIndex}>
+            {item.name}
+          </DialogItemName>
+        </DialogItem>
+      );
+    },
+    [handlePressItem, selectedIndex],
   );
 
   useEffect(() => {
@@ -80,21 +103,27 @@ function SelectDialog(
   return (
     <Modal visible={visible} transparent animationType="fade">
       <Dimmed>
-        <DialogWrapper>
-          <DialogTitleWrapper>
-            <DialogTitle>{options?.title}</DialogTitle>
-          </DialogTitleWrapper>
-          <DialogList bounces={false} overScrollMode="never">
-            {options?.items.map(item => (
-              <DialogItem key={item.key} onPress={handlePressItem(item)}>
-                <DialogItemName
-                  isSelected={item.key === options?.selectedItemKey}>
-                  {item.name}
-                </DialogItemName>
-              </DialogItem>
-            ))}
-          </DialogList>
-        </DialogWrapper>
+        {options && (
+          <DialogWrapper>
+            <DialogTitleWrapper>
+              <DialogTitle>{options?.title}</DialogTitle>
+            </DialogTitleWrapper>
+            <FlatList<Item>
+              keyExtractor={item => item.key}
+              data={options.items}
+              renderItem={renderItem}
+              bounces={false}
+              overScrollMode="never"
+              initialNumToRender={8}
+              initialScrollIndex={selectedIndex ? selectedIndex - 3 : undefined}
+              getItemLayout={(_, i) => ({
+                length: 44,
+                offset: i * 44,
+                index: i,
+              })}
+            />
+          </DialogWrapper>
+        )}
       </Dimmed>
     </Modal>
   );
@@ -133,8 +162,6 @@ const DialogTitle = styled.Text`
   font-weight: 600;
   color: ${Color.Black};
 `;
-
-const DialogList = styled.ScrollView``;
 
 const DialogItem = styled.Pressable`
   height: 44px;
