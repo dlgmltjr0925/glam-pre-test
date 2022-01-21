@@ -81,7 +81,7 @@ export default function KeyboardAwareScrollView({
                   });
                 }
               }
-            }, 10);
+            }, 50);
           },
           () => {},
         );

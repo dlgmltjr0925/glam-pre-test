@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SelectDialogRef } from '../components/SelectDialog';
+import { fetchGetProfile } from '../../../data/api';
+import { useQuery } from 'react-query';
 
 export interface Profile {
   birthday: string | null;
@@ -19,70 +21,51 @@ export interface Profile {
   school: string | null;
 }
 
+interface MetaItem {
+  key: string;
+  name: string;
+}
+export interface Meta {
+  bodyTypes: MetaItem[];
+  educations: MetaItem[];
+  genders: MetaItem[];
+  heightRange: { max: number; min: number };
+}
+
+const initialProfile: Profile = {
+  birthday: null,
+  bodyType: null,
+  company: null,
+  education: null,
+  gender: null,
+  height: 0,
+  id: 0,
+  introduction: null,
+  job: null,
+  location: null,
+  name: null,
+  pictures: [],
+  school: null,
+};
+
+const initialMeta: Meta = {
+  bodyTypes: [],
+  educations: [],
+  genders: [],
+  heightRange: { min: 0, max: 0 },
+};
+
 export default function useEditProfile() {
-  const profileRef = useRef<Profile>({
-    birthday: '1990-01-01',
-    bodyType: 'body_type_00',
-    company: '큐피스트',
-    education: null,
-    gender: 'F',
-    height: 170,
-    id: 0,
-    introduction: '소개글이 지워지면 힌트가 나타나야 합니다',
-    job: '개발자',
-    location: '서울특별시 강남구',
-    name: '개발자 A',
-    pictures: ['/profile/01.png', '/profile/02.png'],
-    school: null,
+  const result = useQuery('FetchGetProfile', fetchGetProfile, {
+    suspense: true,
   });
+
+  const profileRef = useRef<Profile>(initialProfile);
   const selectDialogRef = useRef<SelectDialogRef>(null);
 
-  const [profile, setProfile] = useState<Profile>({
-    birthday: '1990-01-01',
-    bodyType: 'body_type_00',
-    company: '큐피스트',
-    education: null,
-    gender: 'F',
-    height: 170,
-    id: 0,
-    introduction: '소개글이 지워지면 힌트가 나타나야 합니다',
-    job: '개발자',
-    location: '서울특별시 강남구',
-    name: '개발자 A',
-    pictures: ['/profile/01.png', '/profile/02.png'],
-    school: null,
-  });
+  const [profile, setProfile] = useState<Profile>(initialProfile);
 
-  const [meta, setMeta] = useState({
-    bodyTypes: [
-      { key: 'body_type_00', name: '마른' },
-      { key: 'body_type_01', name: '보통' },
-      { key: 'body_type_02', name: '근육' },
-      { key: 'body_type_03', name: '통통' },
-    ],
-    educations: [
-      { key: 'education_00', name: '고등학교' },
-      { key: 'education_01', name: '전문대' },
-      { key: 'education_02', name: '대학교' },
-      { key: 'education_03', name: '석사' },
-      { key: 'education_04', name: '박사' },
-      { key: 'education_05', name: '기타' },
-    ],
-    genders: [
-      {
-        key: 'M',
-        name: '남성',
-      },
-      {
-        key: 'F',
-        name: '여성',
-      },
-    ],
-    heightRange: {
-      max: 220,
-      min: 120,
-    },
-  });
+  const [meta, setMeta] = useState(initialMeta);
 
   const handleChangeText = useCallback((key: keyof Profile) => {
     return (text: string) => {
@@ -133,6 +116,21 @@ export default function useEditProfile() {
   useEffect(() => {
     profileRef.current = profile;
   }, [profile]);
+
+  useEffect(() => {
+    if (result.status === 'success') {
+      const { data, meta } = result.data;
+      const {
+        body_types: bodyTypes,
+        height_range: heightRange,
+        ...otherMeta
+      } = meta;
+      setMeta({ ...otherMeta, bodyTypes, heightRange });
+      const { body_type: bodyType, ...profile } = data;
+      setProfile({ ...profile, bodyType });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result.status]);
 
   return {
     selectDialogRef,
