@@ -76,7 +76,7 @@ export default function TopTabBar({
 
   const tintStyle = useAnimatedStyle(() => {
     if (!ranges) {
-      return {};
+      return { transform: [{ translateX: 8 }] };
     }
 
     const { inputRange, outputRange } = ranges;
