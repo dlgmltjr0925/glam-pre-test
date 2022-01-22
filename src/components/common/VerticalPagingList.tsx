@@ -1,9 +1,5 @@
-import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
 import {
+  ActivityIndicator,
   LayoutChangeEvent,
   LayoutRectangle,
   NativeScrollEvent,
@@ -11,7 +7,12 @@ import {
   ScrollView,
   ScrollViewProps,
 } from 'react-native';
-import { ReactElement, useCallback, useState } from 'react';
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 
 import React from 'react';
 import styled from 'styled-components/native';
@@ -22,6 +23,8 @@ export interface VerticalPagingListProps<ItemT = any> extends ScrollViewProps {
   keyExtractor: (item: ItemT, index: number) => string;
   renderItem: (info: { item: ItemT; index: number }) => ReactElement | null;
   scrollEventThrottle?: number;
+  onEndReached?: () => void;
+  isFetchingNextPage?: boolean;
 }
 
 const initialLayout: LayoutRectangle = {
@@ -37,11 +40,18 @@ export default function VerticalPagingList<T>({
   keyExtractor,
   renderItem,
   scrollEventThrottle = 16,
+  onEndReached,
+  isFetchingNextPage = false,
   ...props
 }: VerticalPagingListProps<T>) {
+  const isEndReached = useSharedValue<boolean>(false);
   const contentOffsetY = useSharedValue<number>(0);
 
   const [layout, setLayout] = useState<LayoutRectangle>(initialLayout);
+
+  const endReachedThreadhold = useMemo(() => {
+    return layout.height * (data.length - 1);
+  }, [data.length, layout.height]);
 
   const handleLayout = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -53,9 +63,16 @@ export default function VerticalPagingList<T>({
 
   const handleScroll = useCallback(
     ({ nativeEvent }: NativeSyntheticEvent<NativeScrollEvent>) => {
-      contentOffsetY.value = nativeEvent.contentOffset.y;
+      const { y } = nativeEvent.contentOffset;
+      contentOffsetY.value = y;
+      if (!isEndReached.value && y > endReachedThreadhold) {
+        isEndReached.value = true;
+        if (onEndReached) {
+          onEndReached();
+        }
+      }
     },
-    [contentOffsetY],
+    [contentOffsetY, endReachedThreadhold, isEndReached, onEndReached],
   );
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -70,6 +87,10 @@ export default function VerticalPagingList<T>({
       transform: [{ translateY }],
     };
   }, [data, layout, itemHeight]);
+
+  useEffect(() => {
+    isEndReached.value = false;
+  }, [data.length, isEndReached]);
 
   return (
     <Container onLayout={handleLayout}>
@@ -88,6 +109,12 @@ export default function VerticalPagingList<T>({
                 {renderItem({ item, index })}
               </ContentView>
             ))}
+            {isFetchingNextPage && (
+              <ActivityIndicatorWrapper
+                style={{ height: layout.height - itemHeight }}>
+                <ActivityIndicator />
+              </ActivityIndicatorWrapper>
+            )}
           </ContentWrapper>
         </ScrollView>
       )}
@@ -103,4 +130,9 @@ const ContentWrapper = styled(Animated.View)``;
 
 const ContentView = styled.View`
   width: 100%;
+`;
+
+const ActivityIndicatorWrapper = styled.View`
+  justify-content: center;
+  align-items: center;
 `;

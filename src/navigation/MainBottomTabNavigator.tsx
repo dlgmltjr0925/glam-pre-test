@@ -1,4 +1,4 @@
-import { Image, ImageSourcePropType, Text, View } from 'react-native';
+import { Image, ImageSourcePropType, Text } from 'react-native';
 
 import HomeTopTabNavigator from './HomeTopTabNavigator';
 import React from 'react';

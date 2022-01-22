@@ -2,13 +2,14 @@ import {
   fetchGetIntroduction,
   fetchGetIntroductionAdditional,
 } from '../../../data/api';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useInfiniteQuery, useQuery } from 'react-query';
 
 import { Item } from '../components/IntroductionCard';
-import { useQuery } from 'react-query';
 
 interface IntroductionData {
   type: 'introduction';
+  id: string;
   item: Item;
   isTodayRecommendation: boolean;
 }
@@ -24,10 +25,16 @@ export default function useIntroduction() {
     suspense: true,
   });
 
-  const additionalResult = useQuery(
-    ['FetchGetIntroductionAdditional', 1],
-    fetchGetIntroductionAdditional,
-    { suspense: true },
+  const additionalResult = useInfiniteQuery(
+    'FetchGetIntroductionAdditional',
+    ({ pageParam = 1 }) => {
+      return fetchGetIntroductionAdditional(pageParam);
+    },
+    {
+      getNextPageParam: lastPage => {
+        return lastPage.meta.next?.id;
+      },
+    },
   );
 
   const [today, setToday] = useState<IntroductionData[]>([]);
@@ -38,11 +45,18 @@ export default function useIntroduction() {
     return [...today, { type: 'recommendation' }, ...additional];
   }, [additional, today]);
 
+  const handleEndReached = useCallback(() => {
+    if (additionalResult.hasNextPage) {
+      additionalResult.fetchNextPage();
+    }
+  }, [additionalResult]);
+
   useEffect(() => {
     if (todayResult.status === 'success') {
       setToday(
         todayResult.data.data.map((item: Item) => ({
           type: 'introduction',
+          id: `today-${item.id}`,
           isTodayRecommendation: true,
           item,
         })),
@@ -53,17 +67,28 @@ export default function useIntroduction() {
 
   useEffect(() => {
     if (additionalResult.status === 'success') {
-      setAdditional([
-        ...additional,
-        ...additionalResult.data.data.map((item: Item) => ({
-          type: 'introduction',
-          isTodayRecommendation: false,
-          item,
-        })),
-      ]);
+      const newInstructions = additionalResult.data.pages;
+
+      setTimeout(() => {
+        setAdditional([
+          ...additional,
+          ...newInstructions[newInstructions.length - 1].data.map(
+            (item: Item) => ({
+              type: 'introduction',
+              id: `additional-${item.id}`,
+              isTodayRecommendation: false,
+              item,
+            }),
+          ),
+        ]);
+      }, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [additionalResult.status]);
+  }, [additionalResult.data?.pages]);
 
-  return { data };
+  return {
+    data,
+    handleEndReached,
+    isFetchingAdditional: additionalResult.isFetching,
+  };
 }

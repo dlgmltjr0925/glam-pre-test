@@ -1,4 +1,3 @@
-import { QueryFunctionContext } from 'react-query';
 import axios from 'axios';
 
 export async function fetchGetIntroduction() {
@@ -10,12 +9,10 @@ export async function fetchGetIntroduction() {
   }
 }
 
-export async function fetchGetIntroductionAdditional({
-  queryKey,
-}: QueryFunctionContext) {
-  const page = queryKey[1] === 1 ? '' : `/${queryKey[1]}`;
+export async function fetchGetIntroductionAdditional(page: number = 1) {
   try {
-    const url = '/introduction/additional' + page;
+    const _page = page > 1 ? `/${page}` : '';
+    const url = `/introduction/additional${_page}`;
     const res = await axios.get(url);
     return res.data;
   } catch (error) {
