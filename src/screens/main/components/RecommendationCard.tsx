@@ -5,6 +5,10 @@ import { CARD_WIDTH } from './IntroductionCard';
 import { Color } from '../../../constants/Color';
 import styled from 'styled-components/native';
 
+interface RecommendationCardProps {
+  onPressSelect?: (item: Item) => void;
+}
+
 const ITEMS: Item[] = [
   {
     title: '글램 추천',
@@ -28,10 +32,15 @@ const ITEMS: Item[] = [
   },
 ];
 
-export default function RecommendationCard() {
-  const handlePress = useCallback((item: Item) => {
-    console.log('pressed item', item);
-  }, []);
+export default function RecommendationCard({
+  onPressSelect,
+}: RecommendationCardProps) {
+  const handlePress = useCallback(
+    (item: Item) => {
+      if (onPressSelect) onPressSelect(item);
+    },
+    [onPressSelect],
+  );
 
   return (
     <Container>

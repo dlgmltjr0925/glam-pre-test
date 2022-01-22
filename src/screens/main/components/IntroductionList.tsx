@@ -6,19 +6,29 @@ import RecommendationCard from './RecommendationCard';
 import VerticalPagingList from '../../../components/common/VerticalPagingList';
 
 export default function IntroductionList() {
-  const { data, handleEndReached, isFetchingAdditional } = useIntroduction();
+  const {
+    data,
+    handlePressCustom,
+    handlePressRemove,
+    handleEndReached,
+    isFetchingAdditional,
+  } = useIntroduction();
 
-  const renderItem = useCallback(({ item }: { item: Data }) => {
-    return item.type === 'introduction' ? (
-      <IntroductionCard
-        item={item.item}
-        priority="high"
-        isTodayRecommendation={item.isTodayRecommendation}
-      />
-    ) : (
-      <RecommendationCard />
-    );
-  }, []);
+  const renderItem = useCallback(
+    ({ item }: { item: Data }) => {
+      return item.type === 'introduction' ? (
+        <IntroductionCard
+          item={item.item}
+          priority="high"
+          isTodayRecommendation={item.isTodayRecommendation}
+          onPressRemove={() => handlePressRemove(item)}
+        />
+      ) : (
+        <RecommendationCard onPressSelect={handlePressCustom} />
+      );
+    },
+    [handlePressCustom, handlePressRemove],
+  );
 
   return (
     <VerticalPagingList<Data>

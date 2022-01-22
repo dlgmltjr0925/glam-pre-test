@@ -22,7 +22,7 @@ export async function fetchGetIntroductionAdditional(page: number = 1) {
 
 export async function fetchPostIntroductionCustom() {
   try {
-    const res = await axios.get('/introduction/custom');
+    const res = await axios.post('/introduction/custom');
     return res.data;
   } catch (error) {
     throw error;

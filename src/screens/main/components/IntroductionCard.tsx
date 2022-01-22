@@ -30,6 +30,7 @@ export interface IntroductionCardProps {
   item: Item;
   priority?: Priority;
   isTodayRecommendation?: boolean;
+  onPressRemove?: () => void;
 }
 
 export const CARD_WIDTH = Dimensions.get('screen').width - 12;
@@ -52,6 +53,7 @@ export default function IntroductionCard({
   item,
   priority = 'normal',
   isTodayRecommendation = false,
+  onPressRemove,
 }: IntroductionCardProps) {
   const [pictureIndex, setPictureIndex] = useState<number>(0);
   const { pictures } = item;
@@ -147,10 +149,10 @@ export default function IntroductionCard({
       </InfoWrapper>
       <PicturePressable onPress={handlePressPicture} />
       <ButtonWrapper>
-        <DeleteButton>
+        <DeleteButton onPress={onPressRemove}>
           <Image source={require('../../../assets/icon/main/delete.png')} />
         </DeleteButton>
-        <LikeButton>
+        <LikeButton onPress={onPressRemove}>
           <LikeButtonText>좋아요</LikeButtonText>
         </LikeButton>
       </ButtonWrapper>
